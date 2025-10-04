@@ -1,4 +1,4 @@
-import { Contact } from '@payload-types'
+import { Contact } from '@/payload-types'
 import { getCachedGlobal } from '@/app/utils/payload/get-global'
 
 export default async function getContactData() {

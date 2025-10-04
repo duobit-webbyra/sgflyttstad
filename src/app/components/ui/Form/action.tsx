@@ -1,46 +1,54 @@
-'use server';
+'use server'
 
-const { renderToStaticMarkup } = await import('react-dom/server');
-import nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+interface TurnstileResponse {
+  success: boolean
+  challenge_ts?: string
+  hostname?: string
+  'error-codes'?: string[]
+}
+
+const { renderToStaticMarkup } = await import('react-dom/server')
+import nodemailer from 'nodemailer'
+
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import EmailTemplate, {
   EmailTemplateProps,
   QuotaTemplate,
   QuotaTemplateProps,
-} from './email-template';
-import getContactData from '@/app/utils/get-contact-data';
-import { Contact } from '@payload-types';
-import { ActionState, Payload } from '.';
+} from './email-template'
+import getContactData from '@/app/utils/get-contact-data'
+import { Contact } from '@/payload-types'
+import { ActionState, Payload } from '.'
 
-type PlainObject = { [key: string]: any };
+type PlainObject = { [key: string]: any }
 
 /**
  * Converts FormData to a plain object, properly handling arrays
  */
 function convertFormDataToObject(formData: FormData): PlainObject {
-  const object: PlainObject = {};
+  const object: PlainObject = {}
 
   // Get all entries and group them by key
-  const entries = Array.from(formData.entries());
+  const entries = Array.from(formData.entries())
   const grouped = entries.reduce(
     (acc, [key, value]) => {
       if (!acc[key]) {
-        acc[key] = [];
+        acc[key] = []
       }
-      acc[key].push(value);
-      return acc;
+      acc[key].push(value)
+      return acc
     },
-    {} as Record<string, any[]>
-  );
+    {} as Record<string, any[]>,
+  )
 
   // Convert entries to final format
   for (const [key, values] of Object.entries(grouped)) {
-    const cleanKey = key.replace('[]', '');
+    const cleanKey = key.replace('[]', '')
     // If there are multiple values or the key indicates an array, keep it as array
-    object[cleanKey] = values.length > 1 ? values : values[0];
+    object[cleanKey] = values.length > 1 ? values : values[0]
   }
 
-  return object;
+  return object
 }
 
 /**
@@ -48,55 +56,48 @@ function convertFormDataToObject(formData: FormData): PlainObject {
  * @param input - The input object or FormData to be copied and filtered
  * @returns A new object with filtered keys
  */
-function deepCopyWithFilter<T extends FormData | PlainObject>(
-  input: T
-): PlainObject {
+function deepCopyWithFilter<T extends FormData | PlainObject>(input: T): PlainObject {
   // Convert FormData to plain object if needed
   const obj: PlainObject =
-    input instanceof FormData
-      ? convertFormDataToObject(input as FormData)
-      : input;
+    input instanceof FormData ? convertFormDataToObject(input as FormData) : input
 
   // Handle null and undefined
   if (obj === null || obj === undefined) {
-    return obj;
+    return obj
   }
 
   // Handle primitive types
   if (typeof obj !== 'object') {
-    return obj;
+    return obj
   }
 
   // Handle Date objects
   if (obj instanceof Date) {
-    return new Date(obj.getTime());
+    return new Date(obj.getTime())
   }
 
   // Handle Array objects
   if (Array.isArray(obj)) {
-    return obj.map((item) => deepCopyWithFilter(item));
+    return obj.map((item) => deepCopyWithFilter(item))
   }
 
   // Handle regular objects
-  const filtered: PlainObject = {};
+  const filtered: PlainObject = {}
 
   for (const [key, value] of Object.entries(obj)) {
     // Skip 'cf-turnstile-response' and keys starting with $ACTION
     if (key === 'cf-turnstile-response' || key.startsWith('$ACTION')) {
-      continue;
+      continue
     }
 
-    filtered[key] = deepCopyWithFilter(value);
+    filtered[key] = deepCopyWithFilter(value)
   }
 
-  return filtered;
+  return filtered
 }
 
-export async function sendEmail(
-  state: ActionState,
-  formData: FormData
-): Promise<ActionState> {
-  const turnstileToken = formData.get('cf-turnstile-response');
+export async function sendEmail(state: ActionState, formData: FormData): Promise<ActionState> {
+  const turnstileToken = formData.get('cf-turnstile-response')
   const verificationResponse = await fetch(
     'https://challenges.cloudflare.com/turnstile/v0/siteverify',
     {
@@ -108,58 +109,58 @@ export async function sendEmail(
         'Content-Type': 'application/json',
       },
       method: 'POST',
-    }
-  );
+    },
+  )
 
-  const verificationData = await verificationResponse.json();
+  const verificationData = (await verificationResponse.json()) as TurnstileResponse
 
   if (!verificationData.success) {
-    console.error('Turnstile verification failed');
+    console.error('Turnstile verification failed')
     return {
       ...state,
       status: 'error',
       message: 'Något gick fel. Försök igen senare',
-    };
+    }
   }
 
   if (!state.type) {
-    console.error('Form type is required');
+    console.error('Form type is required')
     return {
       ...state,
       status: 'error',
       message: 'Något gick fel, försök igen senare.',
-    };
+    }
   }
 
-  const contactData = (await getContactData()) as Contact;
-  if (!contactData?.email) throw new Error('Failed to get contact information');
+  const contactData = (await getContactData()) as Contact
+  if (!contactData?.email) throw new Error('Failed to get contact information')
 
-  const data: Record<string, any> = deepCopyWithFilter(formData);
+  const data: Record<string, any> = deepCopyWithFilter(formData)
 
-  const user = process.env.EMAIL_USER;
-  const password = process.env.EMAIL_PASS;
+  const user = process.env.EMAIL_USER
+  const password = process.env.EMAIL_PASS
 
   if (!user || !password) {
     return {
       ...state,
       status: 'error',
       message: 'Något gick fel, försök igen senare.',
-    };
+    }
   }
 
-  let htmlContent: string;
+  let htmlContent: string
 
   if (state.type === 'quota') {
     htmlContent = renderToStaticMarkup(
-      <QuotaTemplate {...(data as unknown as QuotaTemplateProps)} />
-    );
+      <QuotaTemplate {...(data as unknown as QuotaTemplateProps)} />,
+    )
   } else {
     htmlContent = renderToStaticMarkup(
-      <EmailTemplate {...(data as unknown as EmailTemplateProps)} />
-    );
+      <EmailTemplate {...(data as unknown as EmailTemplateProps)} />,
+    )
   }
 
-  let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
+  let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>
 
   try {
     transporter = nodemailer.createTransport({
@@ -170,7 +171,7 @@ export async function sendEmail(
         user: user,
         pass: password,
       },
-    } as SMTPTransport.Options);
+    } as SMTPTransport.Options)
 
     // Send email to contactData.email
     await transporter.sendMail({
@@ -179,7 +180,7 @@ export async function sendEmail(
       replyTo: data.email,
       subject: 'Ny kundkontakt',
       html: htmlContent,
-    });
+    })
 
     // Send confirmation email to data.email
     const confirmationHtml = `
@@ -188,26 +189,26 @@ export async function sendEmail(
     <p>Med vänliga hälsningar,<br />SG Flytt & Städ Mälardalen</p>
     <br />
     <img src="https://sgflyttstad.se/logo/logo.png" alt="SG Flytt & Städ Logo" style="width: 200px; height: auto;" />
-  `;
+  `
 
     await transporter.sendMail({
       from: user,
       to: data.email,
       subject: 'Bekräftelse: Vi har mottagit ditt meddelande',
       html: confirmationHtml,
-    });
+    })
 
     return {
       ...state,
       status: 'success',
       message: 'Din förfråga har skickats.',
-    };
+    }
   } catch (error) {
-    console.error(error);
+    console.error(error)
     return {
       ...state,
       status: 'error',
       message: 'Något gick fel, försök igen senare.',
-    };
+    }
   }
 }
