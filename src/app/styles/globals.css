@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --header-height: 90px;
+    --info-header-height: 72px;
+    --primary-color: #fdfdfc;
+    --primary-accent-color: #f9f9fb;
+    --secondary-color: #ebebeb;
+    --secondary-accent-color: #737373;
+    --tertiary-color: #1c2936;
+    --tertiary-hover-color: #2a3d51;
+    --tertiary-accent-color: #e0f3fe;
+    --quaternary-color: #f3e6d1;
+    --error-color: #814040;
+  }
+
+  body {
+    background: var(--primary-color);
+  }
+
+  /* Input default styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-transition-delay: 9999s;
+    transition-delay: 9999s;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='date']::-webkit-datetime-edit-year-field,
+  input[type='date']::-webkit-datetime-edit-month-field,
+  input[type='date']::-webkit-datetime-edit-day-field {
+    cursor: text;
+  }
+  input[type='date']::-webkit-datetime-edit-year-field:focus,
+  input[type='date']::-webkit-datetime-edit-month-field:focus,
+  input[type='date']::-webkit-datetime-edit-day-field:focus {
+    color: inherit;
+    background: transparent;
+    outline: none;
+  }
+  input[type='date'],
+  input::-webkit-date-and-time-value {
+    text-align: left;
+  }
+
+  /* Firefox */
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+  input[type='radio'] {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  input:focus {
+    outline: 0;
+    box-shadow: none;
+  }
+  /* Prevent scrolling */
+
+  * {
+    font-size: 16px;
+  }
+
+  ::-webkit-datetime-edit-text {
+    color: var(--secondary-accent-color);
+    padding: 0 0.3em;
+  }
+  ::-webkit-datetime-edit-month-field {
+    color: var(--secondary-accent-color);
+  }
+  ::-webkit-datetime-edit-day-field {
+    color: var(--secondary-accent-color);
+  }
+  ::-webkit-datetime-edit-year-field {
+    color: var(--secondary-accent-color);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  a,
+  input,
+  textarea {
+    color: var(--tertiary-color);
+  }
+
+  main.menu-open {
+    filter: brightness(0.5);
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+.no-scroll {
+  overflow: hidden;
+}

@@ -1,0 +1,96 @@
+/* google-autocomplete.css */
+
+/* Container for the list of predictions */
+.pac-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure the dropdown is above other elements */
+}
+
+.pac-container:empty {
+  display: none !important;
+}
+/* Icon displayed to the left of each item */
+.pac-container,
+.pac-item {
+  width: inherit !important;
+}
+/* Item in the list of predictions */
+.pac-item {
+  padding: 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Item when hovered */
+.pac-item:hover {
+  background-color: var(--tertiary-accent-color);
+}
+
+/* Item when selected via keyboard */
+.pac-item-selected {
+  background-color: #e0e0e0;
+}
+
+/* Main part of the prediction */
+.pac-item-query {
+  color: var(--tertiary-color);
+  font-size: 16px;
+}
+
+.pac-matched {
+  color: var(--tertiary-color);
+}
+.pac-logo:after {
+  display: none;
+}
+
+.pac-container {
+  animation: rotateMenu 300ms ease-in-out forwards;
+  transform-origin: top center;
+}
+
+@-moz-keyframes rotateMenu {
+  0% {
+    transform: rotateX(-90deg);
+  }
+  70% {
+    transform: rotateX(20deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+@-webkit-keyframes rotateMenu {
+  0% {
+    transform: rotateX(-90deg);
+  }
+  70% {
+    transform: rotateX(20deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+@-o-keyframes rotateMenu {
+  0% {
+    transform: rotateX(-90deg);
+  }
+  70% {
+    transform: rotateX(20deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+@keyframes rotateMenu {
+  0% {
+    transform: rotateX(-90deg);
+  }
+  70% {
+    transform: rotateX(20deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}

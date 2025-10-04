@@ -9,8 +9,10 @@ import { CloudflareContext, getCloudflareContext } from '@opennextjs/cloudflare'
 import { GetPlatformProxyOptions } from 'wrangler'
 import { r2Storage } from '@payloadcms/storage-r2'
 
-import { Users } from './collections/Users'
-import { Media } from './collections/Media'
+import { FAQ } from './payload/globals/faq'
+import { Users } from './payload/collections/users'
+import { Media } from './payload/collections/media'
+import { Contact } from './payload/globals/contact'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -29,6 +31,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media],
+  globals: [Contact, FAQ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

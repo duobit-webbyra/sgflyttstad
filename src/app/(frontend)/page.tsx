@@ -1,59 +1,47 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
-import { getPayload } from 'payload'
-import React from 'react'
-import { fileURLToPath } from 'url'
+import { HomeHero } from '../components/ui/Hero';
+import TextImage from '../components/ui/TextImage';
+import Container from '../components/essentials/Container';
+import { RoadSectionStraight } from '../components/resources/SlantedDivider';
+import CTA from '../components/ui/CTA';
+import { Metadata } from 'next';
 
-import config from '@/payload.config'
-import './styles.css'
+export const metadata: Metadata = {
+  title: 'Professionell Flyttfirma och Städservice | SG Flytt & Städ',
+  description:
+    ' SG Flytt & Städ Mälardalen är din pålitliga partner för en smidig och säker flytt. Vi erbjuder allt från packning och transport till städning för både privatpersoner och företag. Kontakta oss idag för en gratis offert!',
+};
 
-export default async function HomePage() {
-  const headers = await getHeaders()
-  const payloadConfig = await config
-  const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
-
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
-
+export default function Page() {
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
+    <>
+      <section className='relative'>
+        <HomeHero />
+        <RoadSectionStraight />
+      </section>
+      <section className='relative bg-primary'>
+        <Container className='py-24'>
+          <TextImage
+            titleProps={{
+              title: 'Uppdrag',
+              subtitle: 'Komplett flyttfirma',
+              description:
+                'Vi sätter alltid kunden i fokus och anpassar våra tjänster efter dina specifika behov. Oavsett om du flyttar runt hörnet eller till en ny stad, är vår ambition att leverera en trygg och effektiv service som överträffar dina förväntningar.',
+            }}
+            checkmarksProps={{
+              checkmarks: [
+                'Enkel bokning och snabb service',
+                'Lokal och långdistansflytt',
+                'Flytt och städ',
+              ],
+            }}
+            quotaLink
+            imageSrc='/images/mission.webp'
           />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
-        </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
-  )
+        </Container>
+      </section>
+      <section>
+        <CTA />
+      </section>
+    </>
+  );
 }
