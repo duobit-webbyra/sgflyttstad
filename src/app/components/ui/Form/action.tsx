@@ -120,7 +120,7 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
     return {
       ...state,
       status: 'error',
-      message: 'Något gick fel. Försök igen senare',
+      message: 'P1. Något gick fel. Försök igen senare',
     }
   }
 
@@ -129,7 +129,7 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
     return {
       ...state,
       status: 'error',
-      message: 'Något gick fel, försök igen senare.',
+      message: 'P2. Något gick fel, försök igen senare.',
     }
   }
 
@@ -142,7 +142,7 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
     return {
       ...state,
       status: 'error',
-      message: 'Något gick fel, försök igen senare.',
+      message: 'P3. Något gick fel, försök igen senare.',
     }
   }
 
@@ -196,7 +196,7 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
     return {
       ...state,
       status: 'error',
-      message: 'Något gick fel, försök igen senare.',
+      message: 'P4. Något gick fel, försök igen senare.',
     }
   }
 }
