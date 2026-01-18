@@ -8,9 +8,7 @@ interface TurnstileResponse {
 }
 
 const { renderToStaticMarkup } = await import('react-dom/server')
-import nodemailer from 'nodemailer'
-
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
+import { Resend } from 'resend'
 import EmailTemplate, {
   EmailTemplateProps,
   QuotaTemplate,
@@ -28,6 +26,9 @@ type PlainObject = { [key: string]: any }
 function convertFormDataToObject(formData: FormData): PlainObject {
   const object: PlainObject = {}
 
+  // Fields that should always be arrays
+  const arrayFields = new Set(['helpOptions'])
+
   // Get all entries and group them by key
   const entries = Array.from(formData.entries())
   const grouped = entries.reduce(
@@ -44,8 +45,8 @@ function convertFormDataToObject(formData: FormData): PlainObject {
   // Convert entries to final format
   for (const [key, values] of Object.entries(grouped)) {
     const cleanKey = key.replace('[]', '')
-    // If there are multiple values or the key indicates an array, keep it as array
-    object[cleanKey] = values.length > 1 ? values : values[0]
+    // If field should always be array or has multiple values, keep it as array
+    object[cleanKey] = arrayFields.has(cleanKey) || values.length > 1 ? values : values[0]
   }
 
   return object
@@ -137,10 +138,7 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
 
   const data: Record<string, any> = deepCopyWithFilter(formData)
 
-  const user = process.env.EMAIL_USER
-  const password = process.env.EMAIL_PASS
-
-  if (!user || !password) {
+  if (!process.env.RESEND_API_KEY) {
     return {
       ...state,
       status: 'error',
@@ -160,22 +158,12 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
     )
   }
 
-  let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>
+  const resend = new Resend(process.env.RESEND_API_KEY!)
 
   try {
-    transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: user,
-        pass: password,
-      },
-    } as SMTPTransport.Options)
-
     // Send email to contactData.email
-    await transporter.sendMail({
-      from: user,
+    await resend.emails.send({
+      from: 'SG Flytt & Städ <noreply@mail.sgflyttstad.se>',
       to: contactData.email,
       replyTo: data.email,
       subject: 'Ny kundkontakt',
@@ -191,8 +179,8 @@ export async function sendEmail(state: ActionState, formData: FormData): Promise
     <img src="https://sgflyttstad.se/logo/logo.png" alt="SG Flytt & Städ Logo" style="width: 200px; height: auto;" />
   `
 
-    await transporter.sendMail({
-      from: user,
+    await resend.emails.send({
+      from: 'SG Flytt & Städ <noreply@mail.sgflyttstad.se>',
       to: data.email,
       subject: 'Bekräftelse: Vi har mottagit ditt meddelande',
       html: confirmationHtml,
