@@ -28,7 +28,7 @@
     "@opennextjs/cloudflare": "^1.6.5",
     "@payloadcms/db-d1-sqlite": "3.58.0",
     "@payloadcms/email-nodemailer": "3.58.0",
-    "@payloadcms/live-preview-react": "latest",
+    "@payloadcms/live-preview-react": "3.58.0",
     "@payloadcms/next": "3.58.0",
     "@payloadcms/payload-cloud": "3.58.0",
     "@payloadcms/richtext-lexical": "3.58.0",
@@ -88,5 +88,6 @@
         "description": "Generate a random string using `openssl rand -hex 32`"
       }
     }
-  }
+  },
+  "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
 }
