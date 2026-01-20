@@ -21,8 +21,6 @@ import {
   Bs123,
 } from 'react-icons/bs';
 
-import Turnstile from '@/app/components/Turnstile';
-
 import { useMemo, useState } from 'react';
 import { usePlacesWidget } from 'react-google-autocomplete';
 import { useFormStatus } from 'react-dom';
@@ -31,6 +29,7 @@ import Button from '../../ui/Button';
 import React from 'react';
 
 import { useRouter } from 'next/navigation';
+import TurnstileWidget from '@/app/components/Turnstile';
 
 export function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -265,7 +264,7 @@ export function QuotaForm({ data }: Props) {
         placeholder='Övriga önskemål eller kommentarer'
         maxLength={1000}
       />
-      <Turnstile />
+      <TurnstileWidget />
     </Form>
   );
 }
@@ -439,7 +438,7 @@ export function EmailForm() {
         required
       />
       <TextArea name='message' placeholder='Meddelande' maxLength={1000} />
-      <Turnstile />
+      <TurnstileWidget />
     </Form>
   );
 }
