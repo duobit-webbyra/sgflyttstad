@@ -17,6 +17,7 @@ import EmailTemplate, {
 import getContactData from '@/app/utils/get-contact-data'
 import { Contact } from '@/payload-types'
 import { ActionState, Payload } from '.'
+import { headers } from 'next/headers'
 
 type PlainObject = { [key: string]: any }
 
@@ -99,30 +100,40 @@ function deepCopyWithFilter<T extends FormData | PlainObject>(input: T): PlainOb
 
 export async function sendEmail(state: ActionState, formData: FormData): Promise<ActionState> {
   const turnstileToken = formData.get('cf-turnstile-response')
-  const verificationResponse = await fetch(
-    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-    {
-      body: JSON.stringify({
-        response: turnstileToken,
-        secret: process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
+  const headerStorage = await headers()
+  const remoteIp = headerStorage.get("CF-Connecting-IP") || headerStorage.get("X-Forwarded-For")
+
+  try {
+    const verificationResponse = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      {
+        body: JSON.stringify({
+          response: turnstileToken,
+          secret: process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY,
+          remoteIp
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
       },
-      method: 'POST',
-    },
-  )
+    )
 
-  const verificationData = (await verificationResponse.json()) as TurnstileResponse
+    const verificationData = (await verificationResponse.json()) as TurnstileResponse
 
-  if (!verificationData.success) {
-    console.error('Turnstile verification failed')
-    return {
-      ...state,
-      status: 'error',
-      message: 'P1. Något gick fel. Försök igen senare',
+    if (!verificationData.success) {
+      console.error('Turnstile verification failed')
+      return {
+        ...state,
+        status: 'error',
+        message: 'P1. Något gick fel. Försök igen senare',
+      }
     }
+  } catch (e) {
+      console.error('Turnstile validation error:', e);
+      return { status: 'error', message: 'P18. Något gick fel. Försök igen senare' };
   }
+
 
   if (!state.type) {
     console.error('Form type is required')
